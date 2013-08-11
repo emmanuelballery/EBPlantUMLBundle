@@ -1,0 +1,29 @@
+{
+    "name": "emmanuelballery/eb-plantumlbundle",
+    "description": "EBPlantUMLBundle",
+    "homepage": "https://github.com/emmanuelballery/EBPlantUMLBundle.git",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/emmanuelballery/EBPlantUMLBundle.git"
+        }
+    ],
+    "authors": [
+        {
+            "name": "Emmanuel BALLERY",
+            "email": "emmanuel.ballery@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "doctrine/doctrine-bundle": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "EB\\PlantUMLBundle": ""
+        }
+    },
+    "target-dir": "EB/PlantUMLBundle"
+}

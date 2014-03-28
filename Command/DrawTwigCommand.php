@@ -37,6 +37,12 @@ class DrawTwigCommand extends ContainerAwareCommand
         $includes = $input->getOption('includes');
         $excludes = $input->getOption('excludes');
 
+        if (false === $this->getContainer()->has('eb.plant_uml_bundle.drawer.twig_drawer')) {
+            $output->write('<error>Twig drawer missing. Please check your requirements.</error>');
+
+            return 0;
+        }
+
         return $this->getContainer()->get('eb.plant_uml_bundle.drawer.twig_drawer')->draw($target, $includes, $excludes) ? 0 : 1;
     }
 }

@@ -34,6 +34,12 @@ class DrawDoctrineCommand extends ContainerAwareCommand
 
         $target = $input->getArgument('file');
 
+        if (false === $this->getContainer()->has('eb.plant_uml_bundle.drawer.doctrine_drawer')) {
+            $output->write('<error>Doctrine drawer missing. Please check your requirements.</error>');
+
+            return 0;
+        }
+
         return $this->getContainer()->get('eb.plant_uml_bundle.drawer.doctrine_drawer')->draw($target) ? 0 : 1;
     }
 }

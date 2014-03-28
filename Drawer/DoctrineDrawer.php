@@ -4,6 +4,8 @@ namespace EB\PlantUMLBundle\Drawer;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\EntityManager;
+use EB\PlantUMLBundle\Fixtures\Box;
+use EB\PlantUMLBundle\Fixtures\Graph;
 
 /**
  * Class DoctrineDrawer
@@ -43,18 +45,16 @@ class DoctrineDrawer
         $mds = $this->em->getMetadataFactory()->getAllMetadata();
 
         // Create graph
-        $g = [];
-        $g[] = '@startuml';
-        $g[] = 'set namespaceSeparator none';
+        $g = new Graph();
         foreach ($mds as $m) {
             $ref = $m->getReflectionClass();
 
             // Define this entity
-            $g[] = sprintf('class %s', $ref->getShortName());
+            $box = $g->addBox($ref->getShortName());
 
             // Extension
             if (false !== $parent = $ref->getParentClass()) {
-                $g[] = sprintf('%s --|> %s', $ref->getShortName(), $parent->getShortName());
+                $box->addExtends($parent->getShortName());
             }
 
             // Properties
@@ -62,27 +62,21 @@ class DoctrineDrawer
                 if ($m->isSingleValuedAssociation($property->getName())) {
                     $matches = [];
                     if (preg_match('/targetEntity="([^"]+)"/i', $property->getDocComment(), $matches)) {
-                        $g[] = sprintf('%s o-- %s', $ref->getShortName(), $matches[1]);
+                        $box->addOneToMany($matches[1]);
                     }
                 } elseif ($m->isAssociationInverseSide($property->getName())) {
                     // multiple
                 } elseif ($m->isCollectionValuedAssociation($property->getName())) {
                     $matches = [];
                     if (preg_match('/targetEntity="([^"]+)"/i', $property->getDocComment(), $matches)) {
-                        $g[] = sprintf('%s o-o %s', $ref->getShortName(), $matches[1]);
+                        $box->addOneToOne($matches[1]);
                     }
                 } else {
-                    $g[] = sprintf(
-                        '%s : %s%s << %s >>',
-                        $ref->getShortName(),
-                        $property->isPrivate() ? '-' : ($property->isProtected() ? '#' : '+'),
-                        $property->getName(),
-                        $m->getTypeOfField($property->getName())
-                    );
+                    $visibility = $property->isPrivate() ? Box::VISIBILITY_PRIVATE : ($property->isProtected() ? Box::VISIBILITY_PROTECTED : Box::VISIBILITY_PUBLIC);
+                    $box->addParameter($property->getName(), $m->getTypeOfField($property->getName()), $visibility);
                 }
             }
         }
-        $g[] = '@enduml';
 
         return $this->plantUML->dump($g, $target);
     }

@@ -2,6 +2,7 @@
 
 namespace EB\PlantUMLBundle\Drawer;
 
+use EB\PlantUMLBundle\Fixtures\Graph;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
@@ -35,18 +36,18 @@ class PlantUML
     /**
      * Dump array data
      *
-     * @param array  $data Data
-     * @param string $file File
+     * @param Graph  $graph Graph
+     * @param string $file  File
      *
      * @return bool
      */
-    public function dump(array $data, $file)
+    public function dump(Graph $graph, $file)
     {
         $prefix = sys_get_temp_dir() . '/' . uniqid();
         $txt = $prefix . '.txt';
         $png = $prefix . '.png';
 
-        $this->fs->dumpFile($txt, implode(PHP_EOL, $data));
+        $this->fs->dumpFile($txt, implode(PHP_EOL, $graph->toArray()));
         $plantUml = new Process(sprintf(
             '%s -jar "%s" "%s"',
             $this->java,

@@ -2,6 +2,7 @@
 
 namespace EB\PlantUMLBundle\Drawer;
 
+use EB\PlantUMLBundle\Fixtures\Graph;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -98,49 +99,54 @@ class TwigDrawer
         array_map([$this, 'resolve'], $this->files);
 
         // Create graph
-        $g = [];
-        $g[] = '@startuml';
-        $g[] = 'set namespaceSeparator none';
+        $g = new Graph();
         foreach ($this->resolvedFiles as $id => $file) {
-            $g[] = sprintf('class "%s"', $id);
+            $box = $g->addBox($id);
+
+            // Defined blocks
             if (0 !== count($file['defined_blocks']) || 0 !== count($file['called_blocks'])) {
-                $g[] = sprintf('"%s": blocks', $id);
+                $box->addText('blocks');
                 if (0 !== count($file['defined_blocks'])) {
-                    $g[] = sprintf('"%s": \tdefined', $id);
+                    $box->addText('defined', 1);
                     foreach ($file['defined_blocks'] as $block) {
-                        $g[] = sprintf('"%s": \t\t"%s"', $id, $block);
+                        $box->addText($block, 2);
                     }
                 }
                 if (0 !== count($file['called_blocks'])) {
-                    $g[] = sprintf('"%s": \tcalled', $id);
+                    $box->addText('called', 1);
                     foreach ($file['called_blocks'] as $block) {
-                        $g[] = sprintf('"%s": \t\t"%s"', $id, $block);
+                        $box->addText($block, 2);
                     }
                 }
             }
+
+            // Extends
             foreach ($file['extends'] as $extend) {
-                $g[] = sprintf('"%s" --> "%s"', $id, $extend['id']);
+                $box->addExtends($extend['id']);
             }
+
+            // Traits
             foreach ($file['uses'] as $use) {
-                $g[] = sprintf('"%s": use "%s"', $id, $use['id']);
+                $box->addText(sprintf('use "%s"', $use['id']));
                 if (!empty($use['defined_blocks'])) {
-                    $g[] = sprintf('"%s": \tdefined', $id);
+                    $box->addText('defined', 1);
                     foreach ($use['defined_blocks'] as $block) {
-                        $g[] = sprintf('"%s": \t\t"%s"', $id, $block);
+                        $box->addText($block, 2);
                     }
                 }
                 if (!empty($use['called_blocks'])) {
-                    $g[] = sprintf('"%s": \tcalled', $id);
+                    $box->addText('called', 1);
                     foreach ($use['called_blocks'] as $block) {
-                        $g[] = sprintf('"%s": \t\t"%s"', $id, $block);
+                        $box->addText($block, 2);
                     }
                 }
             }
+
+            // Includes
             foreach ($file['includes'] as $include) {
-                $g[] = sprintf('"%s": include "%s"', $id, $include['id']);
+                $box->addText(sprintf('include "%s"', $include['id']));
             }
         }
-        $g[] = '@enduml';
 
         return $this->plantUML->dump($g, $target);
     }

@@ -12,7 +12,7 @@ PlantUML is used :
 # Generate UML graph using doctrine entities
 
 ```bash
-# Generate doctrine.png going threw all Entity directories
+# Generate doctrine.png going threw all doctrine entities (using its metadata factory)
 php app/console eb:uml:doctrine /var/www/Project/doctrine.png
 ```
 

@@ -14,15 +14,13 @@
         </service>
         <service id="eb.plant_uml_bundle.drawer.doctrine_drawer" class="%eb.plant_uml_bundle.drawer.doctrine_drawer.class%">
             <argument id="eb.plant_uml_bundle.drawer.plantuml" type="service"/>
-            <argument id="kernel" type="service"/>
-            <argument id="filesystem" type="service"/>
-            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="doctrine.orm.default_entity_manager" type="service"/>
         </service>
         <service id="eb.plant_uml_bundle.drawer.twig_drawer" class="%eb.plant_uml_bundle.drawer.twig_drawer.class%">
             <argument id="eb.plant_uml_bundle.drawer.plantuml" type="service"/>
             <argument id="kernel" type="service"/>
             <argument id="filesystem" type="service"/>
-            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="doctrine.orm.default_entity_manager" type="service"/>
         </service>
     </services>
 </container>

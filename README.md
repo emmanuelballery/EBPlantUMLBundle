@@ -1,26 +1,27 @@
 EBPlantUMLBundle
 ================
 
-This is a POC bundle.
+This is a POC bundle for PlantUML : http://plantuml.sourceforge.net/.
 
-# Requirements
+## Requirements
 
-PlantUML is used :
-  - Java JDK is required (sudo apt-get install default-jdk)
-  - DOT Graphiz is required (sudo apt-get install graphviz)
+PlantUML require :
+  - Java JDK (sudo apt-get install default-jdk)
+  - DOT Graphiz (sudo apt-get install graphviz)
 
-# Generate UML graph using doctrine entities
+## Generate UML graph using doctrine entities
+
+To generate an image "/var/www/Project/doctrine.png" using all doctrine entities (referenced by the metadata factory).
 
 ```bash
-# Generate doctrine.png going threw all doctrine entities (using its metadata factory)
 php app/console eb:uml:doctrine /var/www/Project/doctrine.png
 ```
 
-# Generate Twig inheritance tree
+## Generate Twig inheritance tree
+
+To generate an image "/var/www/Project/twig.png" including all twig templates with "ProjectBundle" and
+"app/Resources/views" in their filenames and excluding all files with "ExcludedBundle" in their filenames.
 
 ```bash
-# Generate twig.png
-# Include all twig files with "ProjectBundle" and "app/Resources/views" on their names
-# Exclude all files with "ExcludedBundle" on their names
 php app/console eb:uml:twig /var/www/Project/twig.png -i ProjectBundle -i app/Resources/views -e ExcludedBundle
 ```

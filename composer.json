@@ -21,9 +21,8 @@
         "doctrine/doctrine-bundle": "*"
     },
     "autoload": {
-        "psr-0": {
-            "EB\\PlantUMLBundle": ""
+        "psr-4": {
+            "EB\\PlantUMLBundle\\": ""
         }
-    },
-    "target-dir": "EB/PlantUMLBundle"
+    }
 }

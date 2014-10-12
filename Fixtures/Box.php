@@ -51,6 +51,11 @@ class Box
     /**
      * @var string[]
      */
+    private $manyToOne = [];
+
+    /**
+     * @var string[]
+     */
     private $oneToMany = [];
 
     /**
@@ -121,6 +126,14 @@ class Box
     }
 
     /**
+     * @param string $manyToOne
+     */
+    public function addManyToOne($manyToOne)
+    {
+        $this->manyToOne[] = $manyToOne;
+    }
+
+    /**
      * @param string $oneToMany
      */
     public function addOneToMany($oneToMany)
@@ -161,6 +174,9 @@ class Box
         }
         foreach ($this->oneToOne as $oneToOne) {
             $arr[] = sprintf('"%s" --- "%s"', $this->name, $oneToOne);
+        }
+        foreach ($this->manyToOne as $manyToOne) {
+            $arr[] = sprintf('"%s" o-- "%s"', $this->name, $manyToOne);
         }
         foreach ($this->oneToMany as $oneToMany) {
             $arr[] = sprintf('"%s" --o "%s"', $this->name, $oneToMany);

@@ -4,6 +4,7 @@ namespace EB\PlantUMLBundle\Drawer;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use EB\PlantUMLBundle\Fixtures\Box;
 use EB\PlantUMLBundle\Fixtures\Graph;
 
@@ -73,12 +74,22 @@ class DoctrineDrawer
 
             // Associations
             foreach ($m->getAssociationNames() as $field) {
-                if ($m->isSingleValuedAssociation($field)) {
-                    $box->addOneToMany($m->getAssociationTargetClass($field));
-                } elseif ($m->isAssociationInverseSide($field)) {
-                    $box->addManyToMany($m->getAssociationTargetClass($field));
-                } elseif ($m->isCollectionValuedAssociation($field)) {
-                    $box->addOneToOne($m->getAssociationTargetClass($field));
+                $mapping = $m->getAssociationMapping($field);
+                switch ($mapping['type']) {
+                    case ClassMetadataInfo::MANY_TO_MANY:
+                        $mapping['isOwningSide'] && $box->addManyToMany($mapping['targetEntity']);
+                        break;
+                    case ClassMetadataInfo::MANY_TO_ONE:
+                        $mapping['isOwningSide'] && $box->addManyToOne($mapping['targetEntity']);
+                        break;
+                    case ClassMetadataInfo::ONE_TO_MANY:
+                        $mapping['isOwningSide'] && $box->addOneToMany($mapping['targetEntity']);
+                        break;
+                    case ClassMetadataInfo::ONE_TO_ONE:
+                        $mapping['isOwningSide'] && $box->addOneToOne($mapping['targetEntity']);
+                        break;
+                    default:
+                        break;
                 }
             }
         }

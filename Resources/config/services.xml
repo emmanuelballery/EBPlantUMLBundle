@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="eb.plant_uml_bundle.drawer.plant_uml.class">EB\PlantUMLBundle\Drawer\PlantUML</parameter>
+        <parameter key="eb.plant_uml_bundle.drawer.twig_drawer.class">EB\PlantUMLBundle\Drawer\TwigDrawer</parameter>
+        <parameter key="eb.plant_uml_bundle.drawer.doctrine_drawer.class">EB\PlantUMLBundle\Drawer\DoctrineDrawer</parameter>
+        <parameter key="eb.plant_uml_bundle.drawer.validator_drawer.class">EB\PlantUMLBundle\Drawer\ValidatorDrawer</parameter>
+    </parameters>
+    <services>
+        <service id="eb.plant_uml_bundle.drawer.plantuml" class="%eb.plant_uml_bundle.drawer.plant_uml.class%">
+            <argument type="service" id="filesystem"/>
+            <argument>%eb.plant_uml_bundle.java%</argument>
+        </service>
+        <service id="eb.plant_uml_bundle.drawer.twig_drawer" class="%eb.plant_uml_bundle.drawer.twig_drawer.class%">
+            <argument type="service" id="eb.plant_uml_bundle.drawer.plantuml"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="doctrine.orm.default_entity_manager"/>
+        </service>
+        <service id="eb.plant_uml_bundle.drawer.doctrine_drawer" class="%eb.plant_uml_bundle.drawer.doctrine_drawer.class%">
+            <argument type="service" id="eb.plant_uml_bundle.drawer.plantuml"/>
+            <argument type="service" id="doctrine.orm.default_entity_manager"/>
+        </service>
+        <service id="eb.plant_uml_bundle.drawer.validator_drawer" class="%eb.plant_uml_bundle.drawer.validator_drawer.class%">
+            <argument type="service" id="eb.plant_uml_bundle.drawer.plantuml"/>
+            <argument type="service" id="doctrine.orm.default_entity_manager"/>
+            <argument type="service" id="validator"/>
+        </service>
+    </services>
+</container>

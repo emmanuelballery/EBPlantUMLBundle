@@ -164,7 +164,7 @@ class Box
             $arr[] = $text;
         }
         foreach ($this->text as list($text, $tab)) {
-            $arr[] = sprintf('"%s": %s%s', $this->name, str_repeat('\t', $tab), $text);
+            $arr[] = sprintf('"%s" : %s%s', $this->name, str_repeat('\t', $tab), $text);
         }
         foreach ($this->parameters as list($name, $type, $visibility)) {
             $arr[] = sprintf('"%s" : %s%s << %s >>', $this->name, $this->visibilityChars[$visibility], $name, $type);

@@ -77,16 +77,36 @@ class DoctrineDrawer
                 $mapping = $m->getAssociationMapping($field);
                 switch ($mapping['type']) {
                     case ClassMetadataInfo::MANY_TO_MANY:
-                        $mapping['isOwningSide'] && $box->addManyToMany($mapping['targetEntity']);
+                        if ($mapping['isOwningSide']) {
+                            $box->addManyToMany(
+                                $mapping['targetEntity'],
+                                $mapping['fieldName']
+                            );
+                        }
                         break;
                     case ClassMetadataInfo::MANY_TO_ONE:
-                        $mapping['isOwningSide'] && $box->addManyToOne($mapping['targetEntity']);
+                        if ($mapping['isOwningSide']) {
+                            $box->addManyToOne(
+                                $mapping['targetEntity'],
+                                $mapping['fieldName']
+                            );
+                        }
                         break;
                     case ClassMetadataInfo::ONE_TO_MANY:
-                        $mapping['isOwningSide'] && $box->addOneToMany($mapping['targetEntity']);
+                        if ($mapping['isOwningSide']) {
+                            $box->addOneToMany(
+                                $mapping['targetEntity'],
+                                $mapping['fieldName']
+                            );
+                        }
                         break;
                     case ClassMetadataInfo::ONE_TO_ONE:
-                        $mapping['isOwningSide'] && $box->addOneToOne($mapping['targetEntity']);
+                        if ($mapping['isOwningSide']) {
+                            $box->addOneToOne(
+                                $mapping['targetEntity'],
+                                $mapping['fieldName']
+                            );
+                        }
                         break;
                     default:
                         break;

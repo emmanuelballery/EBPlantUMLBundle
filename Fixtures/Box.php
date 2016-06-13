@@ -118,35 +118,39 @@ class Box
     }
 
     /**
-     * @param string $oneToOne
+     * @param string      $class     Class
+     * @param null|string $fieldName Field name
      */
-    public function addOneToOne($oneToOne)
+    public function addOneToOne($class, $fieldName = null)
     {
-        $this->oneToOne[] = $oneToOne;
+        $this->oneToOne[] = [$class, $fieldName];
     }
 
     /**
-     * @param string $manyToOne
+     * @param string      $class     Class
+     * @param null|string $fieldName Field name
      */
-    public function addManyToOne($manyToOne)
+    public function addManyToOne($class, $fieldName = null)
     {
-        $this->manyToOne[] = $manyToOne;
+        $this->manyToOne[] = [$class, $fieldName];
     }
 
     /**
-     * @param string $oneToMany
+     * @param string      $class     Class
+     * @param null|string $fieldName Field name
      */
-    public function addOneToMany($oneToMany)
+    public function addOneToMany($class, $fieldName = null)
     {
-        $this->oneToMany[] = $oneToMany;
+        $this->oneToMany[] = [$class, $fieldName];
     }
 
     /**
-     * @param string $manyToMany
+     * @param string      $class     Class
+     * @param null|string $fieldName Field name
      */
-    public function addManyToMany($manyToMany)
+    public function addManyToMany($class, $fieldName = null)
     {
-        $this->manyToMany[] = $manyToMany;
+        $this->manyToMany[] = [$class, $fieldName];
     }
 
     /**
@@ -164,7 +168,7 @@ class Box
             $arr[] = $text;
         }
         foreach ($this->text as list($text, $tab)) {
-            $arr[] = sprintf('"%s" : %s%s', $this->name, str_repeat('\t', $tab), $text);
+            $arr[] = sprintf('"%s": %s%s', $this->name, str_repeat('\t', $tab), $text);
         }
         foreach ($this->parameters as list($name, $type, $visibility)) {
             $arr[] = sprintf('"%s" : %s%s << %s >>', $this->name, $this->visibilityChars[$visibility], $name, $type);
@@ -172,17 +176,33 @@ class Box
         foreach ($this->extends as $extend) {
             $arr[] = sprintf('"%s" --> "%s"', $this->name, $extend);
         }
-        foreach ($this->oneToOne as $oneToOne) {
-            $arr[] = sprintf('"%s" --- "%s"', $this->name, $oneToOne);
+        foreach ($this->oneToOne as list($class, $fieldName)) {
+            if ($fieldName) {
+                $arr[] = sprintf('"%s" --- "%s" : "%s"', $this->name, $class, $fieldName);
+            } else {
+                $arr[] = sprintf('"%s" --- "%s"', $this->name, $class);
+            }
         }
-        foreach ($this->manyToOne as $manyToOne) {
-            $arr[] = sprintf('"%s" o-- "%s"', $this->name, $manyToOne);
+        foreach ($this->manyToOne as list($class, $fieldName)) {
+            if ($fieldName) {
+                $arr[] = sprintf('"%s" o-- "%s" : "%s"', $this->name, $class, $fieldName);
+            } else {
+                $arr[] = sprintf('"%s" o-- "%s"', $this->name, $class);
+            }
         }
-        foreach ($this->oneToMany as $oneToMany) {
-            $arr[] = sprintf('"%s" --o "%s"', $this->name, $oneToMany);
+        foreach ($this->oneToMany as list($class, $fieldName)) {
+            if ($fieldName) {
+                $arr[] = sprintf('"%s" --o "%s" : "%s"', $this->name, $class, $fieldName);
+            } else {
+                $arr[] = sprintf('"%s" --o "%s"', $this->name, $class);
+            }
         }
-        foreach ($this->manyToMany as $manyToMany) {
-            $arr[] = sprintf('"%s" o-o "%s"', $this->name, $manyToMany);
+        foreach ($this->manyToMany as list($class, $fieldName)) {
+            if ($fieldName) {
+                $arr[] = sprintf('"%s" o-o "%s" : "%s"', $this->name, $class, $fieldName);
+            } else {
+                $arr[] = sprintf('"%s" o-o "%s"', $this->name, $class);
+            }
         }
 
         return $arr;

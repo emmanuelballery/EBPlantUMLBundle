@@ -43,22 +43,35 @@ class PlantUML
      */
     public function dump(Graph $graph, $file)
     {
-        $prefix = sys_get_temp_dir() . '/' . uniqid();
-        $txt = $prefix . '.txt';
-        $png = $prefix . '.png';
+        try {
+            $isTxt = 'txt' === pathinfo($file, PATHINFO_EXTENSION);
 
-        $this->fs->dumpFile($txt, implode(PHP_EOL, $graph->toArray()));
-        $plantUml = new Process(sprintf(
-            '%s -jar "%s" "%s"',
-            $this->java,
-            __DIR__ . '/../Resources/lib/plantuml.8008.jar',
-            $txt
-        ));
-        $plantUml->run();
-        $this->fs->remove($txt);
-        $this->fs->remove($file);
-        $this->fs->rename($png, $file);
+            if ($isTxt) {
+                $this->fs->dumpFile($file, implode(PHP_EOL, $graph->toArray()));
 
-        return $plantUml->isSuccessful();
+                return true;
+            }
+
+            $prefix = sys_get_temp_dir() . '/' . uniqid();
+            $txt = $prefix . '.txt';
+            $png = $prefix . '.png';
+
+            $this->fs->dumpFile($txt, implode(PHP_EOL, $graph->toArray()));
+
+            $plantUml = new Process(sprintf(
+                '%s -jar "%s" "%s"',
+                $this->java,
+                __DIR__ . '/../Resources/lib/plantuml.8008.jar',
+                $txt
+            ));
+            $plantUml->run();
+
+            $this->fs->remove([$txt, $file]);
+            $this->fs->rename($png, $file);
+
+            return $plantUml->isSuccessful();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

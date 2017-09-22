@@ -41,11 +41,9 @@ class DrawTwigCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getContainer()->get('logger')->debug($this->getDescription());
-        $target = $input->getArgument('file');
-        $includes = $input->getOption('includes');
-        $excludes = $input->getOption('excludes');
-
-        return $this->getContainer()->get('eb.plant_uml_bundle.drawer.twig_drawer')->draw($target, $includes, $excludes) ? 0 : 1;
+        return $this
+            ->getContainer()
+            ->get('eb.plant_uml_bundle.drawer.twig_drawer')
+            ->draw($input->getArgument('file'), $input->getOption('includes'), $input->getOption('excludes')) ? 0 : 1;
     }
 }

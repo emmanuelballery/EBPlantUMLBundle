@@ -1,0 +1,24 @@
+services:
+  eb.plant_uml_bundle.drawer.plantuml:
+    class: EB\PlantUMLBundle\Drawer\PlantUML
+    arguments:
+      - '@filesystem'
+      - '%eb.plant_uml_bundle.java%'
+  eb.plant_uml_bundle.drawer.twig_drawer:
+    class: EB\PlantUMLBundle\Drawer\TwigDrawer
+    arguments:
+      - '@eb.plant_uml_bundle.drawer.plantuml'
+      - '@kernel'
+      - '@filesystem'
+      - '@doctrine.orm.default_entity_manager'
+  eb.plant_uml_bundle.drawer.doctrine_drawer:
+    class: EB\PlantUMLBundle\Drawer\DoctrineDrawer
+    arguments:
+      - '@eb.plant_uml_bundle.drawer.plantuml'
+      - '@doctrine.orm.default_entity_manager'
+  eb.plant_uml_bundle.drawer.validator_drawer:
+    class: EB\PlantUMLBundle\Drawer\ValidatorDrawer
+    arguments:
+      - '@eb.plant_uml_bundle.drawer.plantuml'
+      - '@doctrine.orm.default_entity_manager'
+      - '@validator'

@@ -32,7 +32,7 @@ class EBPlantUMLExtension extends Extension
 
                 // All seems to be fine, load services now
                 $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-                $loader->load('services.xml');
+                $loader->load('drawer.xml');
             }
         }
     }

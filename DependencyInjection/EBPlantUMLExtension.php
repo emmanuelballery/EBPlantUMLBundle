@@ -31,8 +31,8 @@ class EBPlantUMLExtension extends Extension
                 $container->setParameter('eb.plant_uml_bundle.java', trim($whichJava->getOutput()));
 
                 // All seems to be fine, load services now
-                $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-                $loader->load('drawer.xml');
+                $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+                $loader->load('drawer.yml');
             }
         }
     }

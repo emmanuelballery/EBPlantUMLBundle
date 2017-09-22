@@ -6,6 +6,7 @@ use EB\PlantUMLBundle\Fixtures\Graph;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -63,13 +64,14 @@ class TwigDrawer
     }
 
     /**
-     * @param string $target   Target
-     * @param array  $includes Includes files
-     * @param array  $excludes Excluded files
+     * @param resource $target   Target
+     * @param string   $format   Plant UML format
+     * @param array    $includes Includes files
+     * @param array    $excludes Excluded files
      *
      * @return bool
      */
-    public function draw($target, array $includes = [], array $excludes = [])
+    public function draw($target, $format = PlantUML::FORMAT_TXT, array $includes = [], array $excludes = [])
     {
         $this->files = [];
         $this->resolvedFiles = [];
@@ -82,7 +84,7 @@ class TwigDrawer
             /** @var SplFileInfo[] $appFiles */
             $appFiles = Finder::create()->files()->in($path)->depth('<5');
             foreach ($appFiles as $file) {
-                $this->load('', $path, $file);
+                $this->load($file);
             }
         }
         $bundles = $this->kernel->getBundles();
@@ -92,7 +94,7 @@ class TwigDrawer
                 /** @var SplFileInfo[] $bundleFiles */
                 $bundleFiles = Finder::create()->files()->in($path)->depth('<5');
                 foreach ($bundleFiles as $file) {
-                    $this->load($bundle->getName(), $bundle->getPath() . '/Resources/views', $file);
+                    $this->load($file, $bundle);
                 }
             }
         }
@@ -148,34 +150,48 @@ class TwigDrawer
             }
         }
 
-        return $this->plantUML->dump($g, $target);
+        return $this->plantUML->dump($g, $target, $format);
     }
 
     /**
-     * @param string      $bundleName Bundle name
-     * @param string      $viewsPath  Views path
-     * @param SplFileInfo $file       File
+     * Load
+     *
+     * @param SplFileInfo $file   File
+     * @param null|Bundle $bundle Bundle
      */
-    private function load($bundleName, $viewsPath, SplFileInfo $file)
+    private function load(SplFileInfo $file, Bundle $bundle = null)
     {
-        $dirName = mb_strcut(mb_strcut(str_replace([$viewsPath, $file->getBasename()], '', $file->getRealPath()), 1), 0, -1);
-        $fileName = $file->getBasename();
-        $twigName = sprintf('%s:%s:%s', $bundleName, $dirName, $fileName);
+        $id = null;
 
-        // Save data
-        $this->files[$twigName] = [
-            'id' => $twigName,
-            'resolved' => false,
-            'path' => $file->getRealPath(),
-            'bundle' => $bundleName,
-            'dir' => $dirName,
-            'file' => $fileName,
-            'extends' => [],
-            'uses' => [],
-            'includes' => [],
-            'defined_blocks' => [],
-            'called_blocks' => [],
-        ];
+        if (null === $bundle) {
+            if (false !== $appResourcesViewsPath = realpath($this->kernel->getRootDir() . '/Resources/views')) {
+                if (0 === mb_strpos($file->getRealPath(), $appResourcesViewsPath)) {
+                    $id = mb_strcut($file->getRealPath(), 1 + mb_strlen($appResourcesViewsPath));
+                }
+            }
+        } else {
+            if (false !== $bundleResourcesViewsPath = realpath($bundle->getPath() . '/Resources/views')) {
+                if (0 === mb_strpos($file->getRealPath(), $bundleResourcesViewsPath)) {
+                    $id = '@' . mb_strcut($bundle->getName(), 0, -6);
+                    $id .= mb_strcut($file->getRealPath(), mb_strlen($bundleResourcesViewsPath));
+                }
+            }
+        }
+
+        if (null !== $id) {
+            $this->files[$id] = [
+                'id' => $id,
+                'resolved' => false,
+                'path' => $file->getRealPath(),
+                'file' => $file->getBasename(),
+                'bundle_name' => $bundle ? $bundle->getName() : null,
+                'extends' => [],
+                'uses' => [],
+                'includes' => [],
+                'defined_blocks' => [],
+                'called_blocks' => [],
+            ];
+        }
     }
 
     /**
@@ -184,12 +200,11 @@ class TwigDrawer
     private function resolve(array &$file)
     {
         if ($this->isAllowed($file['path'])) {
-            $this->resolvedFiles[$file['id']] = & $file;
+            $this->resolvedFiles[$file['id']] = &$file;
         }
         if ($file['resolved']) {
             return;
         }
-        $file['resolved'] = true;
 
         // Analyse
         $content = file_get_contents($file['path']);
@@ -198,7 +213,7 @@ class TwigDrawer
         $extends = [];
         if (preg_match('/extends\s+\'([^\']+)\'/i', $content, $extends)) {
             if (array_key_exists($extends[1], $this->files)) {
-                $file['extends'][] = & $this->files[$extends[1]];
+                $file['extends'][] = &$this->files[$extends[1]];
                 $this->resolve($this->files[$extends[1]]);
             }
         }
@@ -206,11 +221,11 @@ class TwigDrawer
         $extends = [];
         if (preg_match('/extends[^\?]+\?\s*\'([^\']+)\'\s*:\s*\'([^\']+)\'/i', $content, $extends)) {
             if (array_key_exists($extends[1], $this->files)) {
-                $file['extends'][] = & $this->files[$extends[1]];
+                $file['extends'][] = &$this->files[$extends[1]];
                 $this->resolve($this->files[$extends[1]]);
             }
             if (array_key_exists($extends[2], $this->files)) {
-                $file['extends'][] = & $this->files[$extends[2]];
+                $file['extends'][] = &$this->files[$extends[2]];
                 $this->resolve($this->files[$extends[2]]);
             }
         }
@@ -222,7 +237,7 @@ class TwigDrawer
             sort($uses[1]);
             foreach ($uses[1] as $use) {
                 if (array_key_exists($use, $this->files)) {
-                    $file['uses'][] = & $this->files[$use];
+                    $file['uses'][] = &$this->files[$use];
                     $this->resolve($this->files[$use]);
                 }
             }
@@ -230,18 +245,26 @@ class TwigDrawer
         unset($uses);
 
         // Include
-        $includes = [];
-        if (preg_match_all('/include\s+\'([^\']+)\'/i', $content, $includes)) {
-            $includes[1] = array_unique($includes[1]);
-            sort($includes[1]);
-            foreach ($includes[1] as $include) {
-                if (array_key_exists($include, $this->files)) {
-                    $file['includes'][] = & $this->files[$include];
-                    $this->resolve($this->files[$include]);
+        $includePatterns = [
+            '/include\(\'([^\']+)\'/i',
+            '/include\("([^"]+)"/i',
+            '/include\s+\'([^\']+)\'/i',
+            '/include\s+"([^"]+)"/i',
+        ];
+        foreach ($includePatterns as $includePattern) {
+            $includes = [];
+            if (preg_match_all($includePattern, $content, $includes)) {
+                $includes[1] = array_unique($includes[1]);
+                sort($includes[1]);
+                foreach ($includes[1] as $include) {
+                    if (isset($this->files[$include])) {
+                        $file['includes'][] = &$this->files[$include];
+                        $this->resolve($this->files[$include]);
+                    }
                 }
             }
+            unset($includes);
         }
-        unset($includes);
 
         // Block
         $blocks = [];
@@ -261,6 +284,8 @@ class TwigDrawer
             }
         }
         unset($blocks);
+
+        $file['resolved'] = true;
     }
 
     /**

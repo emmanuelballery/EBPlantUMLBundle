@@ -1,28 +1,28 @@
 {
-    "name": "emmanuelballery/eb-plantumlbundle",
-    "description": "EBPlantUMLBundle",
-    "homepage": "https://github.com/emmanuelballery/EBPlantUMLBundle.git",
-    "type": "symfony-bundle",
-    "license": "MIT",
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/emmanuelballery/EBPlantUMLBundle.git"
-        }
-    ],
-    "authors": [
-        {
-            "name": "Emmanuel BALLERY",
-            "email": "emmanuel.ballery@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.5",
-        "doctrine/doctrine-bundle": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "EB\\PlantUMLBundle\\": ""
-        }
+  "name": "emmanuelballery/eb-plantumlbundle",
+  "description": "EBPlantUMLBundle",
+  "homepage": "https://github.com/emmanuelballery/EBPlantUMLBundle.git",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/emmanuelballery/EBPlantUMLBundle.git"
     }
+  ],
+  "authors": [
+    {
+      "name": "Emmanuel BALLERY",
+      "email": "emmanuel.ballery@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7",
+    "doctrine/doctrine-bundle": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "EB\\PlantUMLBundle\\": ""
+    }
+  }
 }

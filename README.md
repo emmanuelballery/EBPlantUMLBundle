@@ -2,33 +2,77 @@
 
 This is a POC bundle for PlantUML : http://plantuml.sourceforge.net/.
 
-## Requirements
+## Format support
 
-PlantUML require :
-  - Java JDK : ``sudo apt-get install default-jdk``
-  - DOT Graphiz : ``sudo apt-get install graphviz``
+TXT files can be generated without PlantUML dependencies installed locally. If needed, you can use http://www.plantuml.com/plantuml/uml/ to render the PNG image from the exported TXT file.
 
-## Generate UML graph using doctrine entities
+Direct conversion to PNG files is only supported if all PlantUML requirements are met:
 
-To generate an image "/var/www/Project/doctrine.png" using all doctrine entities (referenced by the metadata factory).
+- Java JDK : `sudo apt install -y default-jdk`
+- DOT Graphiz : `sudo apt install -y graphviz`
+
+## Generate Doctrine UML graph
 
 ```bash
-php app/console eb:uml:doctrine "/var/www/Project/doctrine.png"
+# TXT file
+php app/console eb:uml:doctrine "/my/document/doctrine.txt"
+
+# TXT file output to STDOUT
+php app/console eb:uml:doctrine
+
+# TXT file output to file
+php app/console eb:uml:doctrine > doctrine.txt
+
+# PNG file
+php app/console eb:uml:doctrine "/my/document/doctrine.png"
+
+# PNG file output to file
+php app/console eb:uml:doctrine --format=png > doctrine.png
 ```
 
 ## Generate Twig inheritance tree
 
-To generate an image "/var/www/Project/twig.png" including all twig templates with "ProjectBundle" and
-"app/Resources/views" in their filenames and excluding all files with "ExcludedBundle" in their filenames.
+Use `-i` to include templates having their path matching your expression:
+
+- `-i ProjectBundle`: include every paths containing "ProjectBundle"
+- `-i app/Resources/views`: include every paths containing "app/Resources/views"
+
+Use `-e` to exclude templates having their path matching your expression:
+
+- `-i ExcludedBundle`: exclude every paths containing "ExcludedBundle"
 
 ```bash
-php app/console eb:uml:twig "/var/www/Project/twig.png" -i ProjectBundle -i app/Resources/views -e ExcludedBundle
+# TXT file
+php app/console eb:uml:twig "/my/document/twig.txt" -i AppBundle
+
+# TXT file output to STDOUT
+php app/console eb:uml:twig -i AppBundle
+
+# TXT file output to file
+php app/console eb:uml:twig -i AppBundle > twig.txt
+
+# PNG file
+php app/console eb:uml:twig "/my/document/twig.png" -i AppBundle
+
+# PNG file output to file
+php app/console eb:uml:twig -i AppBundle --format=png > twig.png
 ```
 
 ## Generate validation chart
 
-To generate a validation chart image "/var/www/Project/validator.png".
-
 ```bash
-php app/console eb:uml:validator "/var/www/Project/validator.png"
+# TXT file
+php app/console eb:uml:validator "/my/document/validator.txt"
+
+# TXT file output to STDOUT
+php app/console eb:uml:validator
+
+# TXT file output to file
+php app/console eb:uml:validator > validator.txt
+
+# PNG file
+php app/console eb:uml:validator "/my/document/validator.png"
+
+# PNG file output to file
+php app/console eb:uml:validator --format=png > validator.png
 ```

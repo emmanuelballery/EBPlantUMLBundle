@@ -2,9 +2,9 @@
 
 namespace EB\PlantUMLBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author "Emmanuel BALLERY" <emmanuel.ballery@gmail.com>
  */
-class DrawValidatorCommand extends ContainerAwareCommand
+class DrawValidatorCommand extends AbstractPlantUmlCommand
 {
     /**
      * {@inheritdoc}
@@ -30,7 +30,8 @@ class DrawValidatorCommand extends ContainerAwareCommand
         $this
             ->setName('eb:uml:validator')
             ->setDescription('Draw entity validation')
-            ->addArgument('file', InputArgument::REQUIRED, 'Target PNG file');
+            ->addArgument('file', InputArgument::OPTIONAL, 'Target file')
+            ->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'Output format');
     }
 
     /**
@@ -38,9 +39,15 @@ class DrawValidatorCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if (null === $file = $this->extractFile($input)) {
+            $output->writeln('<error>Cannot open target file.</error>');
+        }
+
+        $format = $this->extractFormat($input);
+
         return $this
             ->getContainer()
             ->get('eb.plant_uml_bundle.drawer.validator_drawer')
-            ->draw($input->getArgument('file')) ? 0 : 1;
+            ->draw($file, $format) ? 0 : 1;
     }
 }

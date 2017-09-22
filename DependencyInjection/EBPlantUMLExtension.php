@@ -2,11 +2,11 @@
 
 namespace EB\PlantUMLBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\Process\Process;
 
 /**
  * Class EBPlantUMLExtension
@@ -20,6 +20,8 @@ class EBPlantUMLExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $container->setParameter('eb.plant_uml_bundle.java', null);
+
         // Require java (sudo apt-get install default-jdk)
         $whichJava = new Process('which "java"');
         $whichJava->run();
@@ -29,11 +31,11 @@ class EBPlantUMLExtension extends Extension
             $whichDot->run();
             if ($whichDot->isSuccessful()) {
                 $container->setParameter('eb.plant_uml_bundle.java', trim($whichJava->getOutput()));
-
-                // All seems to be fine, load services now
-                $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-                $loader->load('drawer.yml');
             }
         }
+
+        // All seems to be fine, load services now
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('drawer.yml');
     }
 }

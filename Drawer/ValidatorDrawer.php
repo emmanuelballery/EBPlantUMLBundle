@@ -44,11 +44,14 @@ class ValidatorDrawer
     }
 
     /**
-     * @param string $target
+     * Draw
+     *
+     * @param resource $target Target
+     * @param string   $format Plant UML format
      *
      * @return bool
      */
-    public function draw($target)
+    public function draw($target, $format = PlantUML::FORMAT_TXT)
     {
         /** @var ClassMetadata[] $mds */
         $mds = $this->em->getMetadataFactory()->getAllMetadata();
@@ -91,6 +94,6 @@ class ValidatorDrawer
             }
         }
 
-        return $this->plantUML->dump($g, $target);
+        return $this->plantUML->dump($g, $target, $format);
     }
 }

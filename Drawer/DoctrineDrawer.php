@@ -36,11 +36,14 @@ class DoctrineDrawer
     }
 
     /**
-     * @param string $target
+     * Draw
+     *
+     * @param resource $target Target file
+     * @param string   $format Plant UML format
      *
      * @return bool
      */
-    public function draw($target)
+    public function draw($target, $format)
     {
         /** @var ClassMetadata[] $mds */
         $mds = $this->em->getMetadataFactory()->getAllMetadata();
@@ -114,6 +117,6 @@ class DoctrineDrawer
             }
         }
 
-        return $this->plantUML->dump($g, $target);
+        return $this->plantUML->dump($g, $target, $format);
     }
 }

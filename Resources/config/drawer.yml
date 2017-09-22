@@ -4,6 +4,7 @@ services:
     arguments:
       - '@filesystem'
       - '%eb.plant_uml_bundle.java%'
+      - '@logger'
   eb.plant_uml_bundle.drawer.twig_drawer:
     class: EB\PlantUMLBundle\Drawer\TwigDrawer
     arguments:

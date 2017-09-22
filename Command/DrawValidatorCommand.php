@@ -38,9 +38,9 @@ class DrawValidatorCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getContainer()->get('logger')->debug($this->getDescription());
-        $target = $input->getArgument('file');
-
-        return $this->getContainer()->get('eb.plant_uml_bundle.drawer.validator_drawer')->draw($target) ? 0 : 1;
+        return $this
+            ->getContainer()
+            ->get('eb.plant_uml_bundle.drawer.validator_drawer')
+            ->draw($input->getArgument('file')) ? 0 : 1;
     }
 }

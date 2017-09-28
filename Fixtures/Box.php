@@ -103,10 +103,11 @@ class Box
      * @param string $name       Parameter name
      * @param string $type       Parameter type
      * @param int    $visibility Parameter visibility
+     * @param bool   $isRequired Is required
      */
-    public function addParameter($name, $type = 'integer', $visibility = self::VISIBILITY_PRIVATE)
+    public function addParameter($name, $type = 'integer', $visibility = self::VISIBILITY_PRIVATE, $isRequired = false)
     {
-        $this->parameters[] = [$name, $type, $visibility];
+        $this->parameters[] = [$name, $type, $visibility, $isRequired];
     }
 
     /**
@@ -170,8 +171,8 @@ class Box
         foreach ($this->text as list($text, $tab)) {
             $arr[] = sprintf('"%s" : %s%s', $this->name, str_repeat('\t', $tab), $text);
         }
-        foreach ($this->parameters as list($name, $type, $visibility)) {
-            $arr[] = sprintf('"%s" : %s%s << %s >>', $this->name, $this->visibilityChars[$visibility], $name, $type);
+        foreach ($this->parameters as list($name, $type, $visibility, $isRequired)) {
+            $arr[] = sprintf('"%s" : %s%s << %s%s >>', $this->name, $this->visibilityChars[$visibility], $name, $isRequired ? '' : '?', $type);
         }
         foreach ($this->extends as $extend) {
             $arr[] = sprintf('"%s" --> "%s"', $this->name, $extend);

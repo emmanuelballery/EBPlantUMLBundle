@@ -72,7 +72,8 @@ class DoctrineDrawer
             foreach ($m->getFieldNames() as $field) {
                 $property = $ref->getProperty($field);
                 $visibility = $property->isPrivate() ? Box::VISIBILITY_PRIVATE : ($property->isProtected() ? Box::VISIBILITY_PROTECTED : Box::VISIBILITY_PUBLIC);
-                $box->addParameter($field, $m->getTypeOfField($field), $visibility);
+                $isNullable = $m->isNullable($field);
+                $box->addParameter($field, $m->getTypeOfField($field), $visibility, !$isNullable);
             }
 
             // Associations

@@ -88,7 +88,7 @@ class PlantUML
                 $plantUml = new Process(sprintf(
                     '%s -jar "%s" "%s"',
                     $this->java,
-                    __DIR__ . '/../Resources/lib/plantuml.1.2017.16.jar',
+                    __DIR__ . '/../Resources/lib/plantuml.1.2017.19.jar',
                     $txtPath
                 ));
                 $plantUml->run();

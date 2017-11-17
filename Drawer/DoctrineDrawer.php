@@ -70,7 +70,7 @@ class DoctrineDrawer
 
             // Fields
             foreach ($m->getFieldNames() as $field) {
-                $property = $ref->getProperty($field);
+                $property = $this->findProperty($ref, $field);
                 $visibility = $property->isPrivate() ? Box::VISIBILITY_PRIVATE : ($property->isProtected() ? Box::VISIBILITY_PROTECTED : Box::VISIBILITY_PUBLIC);
                 $isNullable = $m->isNullable($field);
                 $box->addParameter($field, $m->getTypeOfField($field), $visibility, !$isNullable);
@@ -119,5 +119,22 @@ class DoctrineDrawer
         }
 
         return $this->plantUML->dump($g, $target, $format);
+    }
+
+    /**
+     * Find property
+     *
+     * @param \ReflectionClass $ref   Class
+     * @param string           $field Field
+     *
+     * @return \ReflectionProperty
+     */
+    private function findProperty(\ReflectionClass $ref, $field)
+    {
+        while (!$ref->hasProperty($field)) {
+            $ref = $ref->getParentClass();
+        }
+
+        return $ref->getProperty($field);
     }
 }

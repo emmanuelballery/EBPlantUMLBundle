@@ -39,7 +39,7 @@ Use `-i` to include templates having their path matching your expression:
 
 Use `-e` to exclude templates having their path matching your expression:
 
-- `-i ExcludedBundle`: exclude every paths containing "ExcludedBundle"
+- `-e ExcludedBundle`: exclude every paths containing "ExcludedBundle"
 
 ```bash
 # TXT file

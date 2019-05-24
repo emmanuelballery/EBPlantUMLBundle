@@ -1,0 +1,15 @@
+services:
+
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    EB\PlantUMLBundle\Command\:
+        resource: '../../Command'
+        tags: [ 'console.command' ]
+
+    EB\PlantUMLBundle\Drawer\:
+        resource: '../../Drawer'
+
+    EB\PlantUMLBundle\Drawer\PlantUML:
+        $java: '%eb.plant_uml_bundle.java%'

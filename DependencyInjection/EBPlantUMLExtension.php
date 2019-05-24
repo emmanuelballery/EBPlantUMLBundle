@@ -23,11 +23,11 @@ class EBPlantUMLExtension extends Extension
         $container->setParameter('eb.plant_uml_bundle.java', null);
 
         // Require java (sudo apt-get install default-jdk)
-        $whichJava = new Process('which "java"');
+        $whichJava = Process::fromShellCommandline('which "java"');
         $whichJava->run();
         if ($whichJava->isSuccessful()) {
             // Require Graphviz software (sudo apt-get install graphviz)
-            $whichDot = new Process('which "dot"');
+            $whichDot = Process::fromShellCommandline('which "dot"');
             $whichDot->run();
             if ($whichDot->isSuccessful()) {
                 $container->setParameter('eb.plant_uml_bundle.java', trim($whichJava->getOutput()));

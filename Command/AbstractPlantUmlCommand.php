@@ -45,17 +45,22 @@ abstract class AbstractPlantUmlCommand extends ContainerAwareCommand
             if (null !== $file = $input->getArgument('file')) {
                 $ext = mb_strtolower(pathinfo($file, PATHINFO_EXTENSION));
                 if ('txt' === $ext) {
-                    $format = PlantUML::FORMAT_TXT;
-                } elseif ('uml' === $ext) {
-                    $format = PlantUML::FORMAT_UML;
-                } elseif ('png' === $ext) {
-                    $format = PlantUML::FORMAT_PNG;
-                } elseif ('svg' === $ext) {
-                    $format = PlantUML::FORMAT_SVG;
-                } elseif ('atxt' === $ext) {
-                    $format = PlantUML::FORMAT_ATXT;
-                } elseif ('utxt' === $ext) {
-                    $format = PlantUML::FORMAT_UTXT;
+                    return PlantUML::FORMAT_TXT;
+                }
+                if ('uml' === $ext) {
+                    return PlantUML::FORMAT_UML;
+                }
+                if ('png' === $ext) {
+                    return PlantUML::FORMAT_PNG;
+                }
+                if ('svg' === $ext) {
+                    return PlantUML::FORMAT_SVG;
+                }
+                if ('atxt' === $ext) {
+                    return PlantUML::FORMAT_ATXT;
+                }
+                if ('utxt' === $ext) {
+                    return PlantUML::FORMAT_UTXT;
                 }
             }
         }

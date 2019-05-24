@@ -2,7 +2,7 @@
 
 namespace EB\PlantUMLBundle\Drawer;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use EB\PlantUMLBundle\Fixtures\Graph;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -22,7 +22,7 @@ class ValidatorDrawer
     private $plantUML;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
 
@@ -32,11 +32,11 @@ class ValidatorDrawer
     private $validator;
 
     /**
-     * @param PlantUML           $plantUML  Plant UML
-     * @param EntityManager      $em        Entity manager
-     * @param ValidatorInterface $validator Validator
+     * @param PlantUML               $plantUML  Plant UML
+     * @param EntityManagerInterface $em        Entity manager
+     * @param ValidatorInterface     $validator Validator
      */
-    public function __construct(PlantUML $plantUML, EntityManager $em, ValidatorInterface $validator)
+    public function __construct(PlantUML $plantUML, EntityManagerInterface $em, ValidatorInterface $validator)
     {
         $this->plantUML = $plantUML;
         $this->em = $em;

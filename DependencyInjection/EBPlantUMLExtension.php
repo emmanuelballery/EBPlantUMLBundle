@@ -16,7 +16,7 @@ use Symfony\Component\Process\Process;
 class EBPlantUMLExtension extends Extension
 {
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -34,8 +34,8 @@ class EBPlantUMLExtension extends Extension
             }
         }
 
-        // All seems to be fine, load services now
+        // Seems to be fine, load services now
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-        $loader->load('drawer.yml');
+        $loader->load('drawer.yaml');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace EB\PlantUMLBundle\Command;
 
+use EB\PlantUMLBundle\Drawer\TwigDrawer;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,15 +16,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DrawTwigCommand extends AbstractPlantUmlCommand
 {
     /**
-     * {@inheritdoc}
+     * @var TwigDrawer
      */
-    public function isEnabled()
+    private $twigDrawer;
+
+    /**
+     * @param TwigDrawer $twigDrawer
+     */
+    public function __construct(TwigDrawer $twigDrawer)
     {
-        return $this->getContainer()->has('eb.plant_uml_bundle.drawer.twig_drawer');
+        $this->twigDrawer = $twigDrawer;
+        parent::__construct();
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function configure()
     {
@@ -37,7 +44,7 @@ class DrawTwigCommand extends AbstractPlantUmlCommand
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -47,9 +54,11 @@ class DrawTwigCommand extends AbstractPlantUmlCommand
 
         $format = $this->extractFormat($input);
 
-        return $this
-            ->getContainer()
-            ->get('eb.plant_uml_bundle.drawer.twig_drawer')
-            ->draw($file, $format, $input->getOption('includes'), $input->getOption('excludes')) ? 0 : 1;
+        return $this->twigDrawer->draw(
+            $file,
+            $format,
+            $input->getOption('includes'),
+            $input->getOption('excludes')
+        ) ? 0 : 1;
     }
 }

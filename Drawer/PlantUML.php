@@ -6,7 +6,7 @@ use EB\PlantUMLBundle\Fixtures\Graph;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 /**
  * Class PlantUML
@@ -98,26 +98,26 @@ class PlantUML
 
                 $this->fs->dumpFile($txtPath, $content);
 
-                $builder = new ProcessBuilder();
-                $builder
-                    ->add($this->java)
-                    ->add('-jar')
-                    ->add(__DIR__ . '/../Resources/lib/plantuml.1.2017.19.jar')
-                    ->add($txtPath);
+                $args = [
+                    $this->java,
+                    '-jar',
+                    __DIR__ . '/../Resources/lib/plantuml.1.2017.19.jar',
+                    $txtPath,
+                ];
 
                 if (self::FORMAT_SVG === $format) {
-                    $builder->add('-tsvg');
+                    $args[] = '-tsvg';
                 }
 
                 if (self::FORMAT_ATXT === $format) {
-                    $builder->add('-txt');
+                    $args[] = '-txt';
                 }
 
                 if (self::FORMAT_UTXT === $format) {
-                    $builder->add('-utxt');
+                    $args[] = '-utxt';
                 }
 
-                $plantUml = $builder->getProcess();
+                $plantUml = new Process($args);
 
                 $plantUml->run();
 

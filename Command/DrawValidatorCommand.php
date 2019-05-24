@@ -2,6 +2,7 @@
 
 namespace EB\PlantUMLBundle\Command;
 
+use EB\PlantUMLBundle\Drawer\ValidatorDrawer;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,15 +16,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DrawValidatorCommand extends AbstractPlantUmlCommand
 {
     /**
-     * {@inheritdoc}
+     * @var ValidatorDrawer
      */
-    public function isEnabled()
+    private $validatorDrawer;
+
+    /**
+     * @param ValidatorDrawer $validatorDrawer
+     */
+    public function __construct(ValidatorDrawer $validatorDrawer)
     {
-        return $this->getContainer()->has('eb.plant_uml_bundle.drawer.validator_drawer');
+        $this->validatorDrawer = $validatorDrawer;
+        parent::__construct();
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function configure()
     {
@@ -35,7 +42,7 @@ class DrawValidatorCommand extends AbstractPlantUmlCommand
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -45,9 +52,6 @@ class DrawValidatorCommand extends AbstractPlantUmlCommand
 
         $format = $this->extractFormat($input);
 
-        return $this
-            ->getContainer()
-            ->get('eb.plant_uml_bundle.drawer.validator_drawer')
-            ->draw($file, $format) ? 0 : 1;
+        return $this->validatorDrawer->draw($file, $format) ? 0 : 1;
     }
 }

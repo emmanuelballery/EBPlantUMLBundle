@@ -3,7 +3,7 @@
 namespace EB\PlantUMLBundle\Command;
 
 use EB\PlantUMLBundle\Drawer\PlantUML;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
  *
  * @author "Emmanuel BALLERY" <emmanuel.ballery@gmail.com>
  */
-abstract class AbstractPlantUmlCommand extends ContainerAwareCommand
+abstract class AbstractPlantUmlCommand extends Command
 {
     /**
      * Extract file

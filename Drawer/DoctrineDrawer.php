@@ -2,7 +2,7 @@
 
 namespace EB\PlantUMLBundle\Drawer;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use EB\PlantUMLBundle\Fixtures\Box;
@@ -21,15 +21,15 @@ class DoctrineDrawer
     private $plantUML;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
 
     /**
-     * @param PlantUML      $plantUML PlantUML
-     * @param EntityManager $em       Manager
+     * @param PlantUML               $plantUML PlantUML
+     * @param EntityManagerInterface $em       Manager
      */
-    public function __construct(PlantUML $plantUML, EntityManager $em)
+    public function __construct(PlantUML $plantUML, EntityManagerInterface $em)
     {
         $this->plantUML = $plantUML;
         $this->em = $em;
@@ -70,8 +70,15 @@ class DoctrineDrawer
 
             // Fields
             foreach ($m->getFieldNames() as $field) {
-                $property = $this->findProperty($ref, $field);
-                $visibility = $property->isPrivate() ? Box::VISIBILITY_PRIVATE : ($property->isProtected() ? Box::VISIBILITY_PROTECTED : Box::VISIBILITY_PUBLIC);
+                $visibility = Box::VISIBILITY_PRIVATE;
+                if (false !== $property = $this->findProperty($ref, $field)) {
+                    if ($property->isProtected()) {
+                        $visibility = Box::VISIBILITY_PROTECTED;
+                    } elseif ($property->isPublic()) {
+                        $visibility = Box::VISIBILITY_PUBLIC;
+                    }
+                }
+
                 $isNullable = $m->isNullable($field);
                 $box->addParameter($field, $m->getTypeOfField($field), $visibility, !$isNullable);
             }
@@ -127,12 +134,16 @@ class DoctrineDrawer
      * @param \ReflectionClass $ref   Class
      * @param string           $field Field
      *
-     * @return \ReflectionProperty
+     * @return \ReflectionProperty|bool
      */
     private function findProperty(\ReflectionClass $ref, $field)
     {
-        while (!$ref->hasProperty($field)) {
+        while (false !== $ref && !$ref->hasProperty($field)) {
             $ref = $ref->getParentClass();
+        }
+
+        if (false === $ref) {
+            return false;
         }
 
         return $ref->getProperty($field);

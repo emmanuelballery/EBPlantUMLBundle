@@ -2,6 +2,10 @@
 
 This is a POC bundle for PlantUML : http://plantuml.sourceforge.net/.
 
+```bash
+composer require --dev symfony/process emmanuelballery/eb-plantumlbundle
+```
+
 ## Format support
 
 TXT files or URLs can be generated without PlantUML dependencies installed locally.

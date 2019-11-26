@@ -5,11 +5,8 @@ services:
         autoconfigure: true
 
     EB\PlantUMLBundle\Command\:
-        resource: '../../Command'
-        tags: [ 'console.command' ]
-
+        resource: '../../Command/*.php'
     EB\PlantUMLBundle\Drawer\:
-        resource: '../../Drawer'
-
+        resource: '../../Drawer/*.php'
     EB\PlantUMLBundle\Drawer\PlantUML:
         $java: '%eb.plant_uml_bundle.java%'

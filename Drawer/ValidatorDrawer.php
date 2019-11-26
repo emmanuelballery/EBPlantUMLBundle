@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Drawer;
 
@@ -33,7 +33,7 @@ class ValidatorDrawer
 
     /**
      * @param PlantUML               $plantUML  Plant UML
-     * @param EntityManagerInterface $em        Entity manager
+     * @param EntityManagerInterface $em        Entity Manager
      * @param ValidatorInterface     $validator Validator
      */
     public function __construct(PlantUML $plantUML, EntityManagerInterface $em, ValidatorInterface $validator)
@@ -51,7 +51,7 @@ class ValidatorDrawer
      *
      * @return bool
      */
-    public function draw($target, $format = PlantUML::FORMAT_TXT)
+    public function draw($target, string $format = PlantUML::FORMAT_TXT): bool
     {
         /** @var ClassMetadata[] $mds */
         $mds = $this->em->getMetadataFactory()->getAllMetadata();

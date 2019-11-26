@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\DependencyInjection;
 
@@ -18,7 +18,7 @@ class EBPlantUMLExtension extends Extension
     /**
      * @inheritDoc
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $container->setParameter('eb.plant_uml_bundle.java', null);
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Drawer;
 
@@ -7,6 +7,9 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use EB\PlantUMLBundle\Fixtures\Box;
 use EB\PlantUMLBundle\Fixtures\Graph;
+use Exception;
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * Class DoctrineDrawer
@@ -27,7 +30,7 @@ class DoctrineDrawer
 
     /**
      * @param PlantUML               $plantUML PlantUML
-     * @param EntityManagerInterface $em       Manager
+     * @param EntityManagerInterface $em       Entity Manager
      */
     public function __construct(PlantUML $plantUML, EntityManagerInterface $em)
     {
@@ -43,7 +46,7 @@ class DoctrineDrawer
      *
      * @return bool
      */
-    public function draw($target, $format)
+    public function draw($target, string $format): bool
     {
         /** @var ClassMetadata[] $mds */
         $mds = $this->em->getMetadataFactory()->getAllMetadata();
@@ -71,7 +74,7 @@ class DoctrineDrawer
             // Fields
             foreach ($m->getFieldNames() as $field) {
                 $visibility = Box::VISIBILITY_PRIVATE;
-                if (false !== $property = $this->findProperty($ref, $field)) {
+                if (null !== $property = $this->findProperty($ref, $field)) {
                     if ($property->isProtected()) {
                         $visibility = Box::VISIBILITY_PROTECTED;
                     } elseif ($property->isPublic()) {
@@ -80,7 +83,14 @@ class DoctrineDrawer
                 }
 
                 $isNullable = $m->isNullable($field);
-                $box->addParameter($field, $m->getTypeOfField($field), $visibility, !$isNullable);
+                $box->addParameter(
+                    $field,
+                    $m->getTypeOfField($field),
+                    $visibility,
+                    !$isNullable,
+                    $m->isIdentifier($field),
+                    $m->isUniqueField($field)
+                );
             }
 
             // Associations
@@ -129,23 +139,24 @@ class DoctrineDrawer
     }
 
     /**
-     * Find property
+     * Find Property
      *
-     * @param \ReflectionClass $ref   Class
-     * @param string           $field Field
+     * @param ReflectionClass $ref   Class
+     * @param string          $field Field
      *
-     * @return \ReflectionProperty|bool
+     * @return ReflectionProperty|null
      */
-    private function findProperty(\ReflectionClass $ref, $field)
+    private function findProperty(ReflectionClass $ref, string $field): ?ReflectionProperty
     {
-        while (false !== $ref && !$ref->hasProperty($field)) {
+        while (!$ref->hasProperty($field)) {
             $ref = $ref->getParentClass();
         }
 
-        if (false === $ref) {
-            return false;
+        try {
+            return !$ref ? null : $ref->getProperty($field);
+        } catch (Exception $e) {
         }
 
-        return $ref->getProperty($field);
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Command;
 
@@ -32,7 +32,7 @@ class DrawDoctrineCommand extends AbstractPlantUmlCommand
     /**
      * @inheritDoc
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('eb:uml:doctrine')
@@ -44,7 +44,7 @@ class DrawDoctrineCommand extends AbstractPlantUmlCommand
     /**
      * @inheritDoc
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (null === $file = $this->extractFile($input)) {
             $output->writeln('<error>Cannot open target file.</error>');

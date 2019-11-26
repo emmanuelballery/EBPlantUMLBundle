@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Fixtures;
+
+use Generator;
 
 /**
  * Class Graph
@@ -15,41 +17,42 @@ class Graph
     private $boxes = [];
 
     /**
-     * Create a new Box
+     * Create A New Box
      *
      * @param string      $name        Box name
-     * @param null|string $description Description
+     * @param string|null $description Description
      *
      * @return Box
      */
-    public function addBox($name, $description = null)
+    public function addBox(string $name, ?string $description = null)
     {
         return $this->boxes[$name] = new Box($name, $description);
     }
 
     /**
-     * Get box
+     * Get Box
      *
      * @param string $name
      *
-     * @return null|Box
+     * @return Box|null
      */
-    public function getBox($name)
+    public function getBox(string $name): ?Box
     {
-        return array_key_exists($name, $this->boxes) ? $this->boxes[$name] : null;
+        return $this->boxes[$name] ?? null;
     }
 
     /**
-     * @return array
+     * To Array
+     *
+     * @return string[]|Generator
      */
-    public function toArray()
+    public function toArray(): Generator
     {
-        $arr = ['@startuml', 'set namespaceSeparator none'];
+        yield '@startuml';
+        yield 'set namespaceSeparator none';
         foreach ($this->boxes as $box) {
-            $arr = array_merge($arr, $box->toArray());
+            yield from $box->toArray();
         }
-        $arr[] = '@enduml';
-
-        return $arr;
+        yield '@enduml';
     }
 }

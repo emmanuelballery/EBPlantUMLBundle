@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Fixtures;
+
+use Generator;
 
 /**
  * Class Box
@@ -9,9 +11,9 @@ namespace EB\PlantUMLBundle\Fixtures;
  */
 class Box
 {
-    const VISIBILITY_PUBLIC = 1;
-    const VISIBILITY_PRIVATE = 2;
-    const VISIBILITY_PROTECTED = 3;
+    public const VISIBILITY_PUBLIC = 1;
+    public const VISIBILITY_PRIVATE = 2;
+    public const VISIBILITY_PROTECTED = 3;
 
     /**
      * @var string
@@ -19,7 +21,7 @@ class Box
     private $name;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $description;
 
@@ -64,7 +66,7 @@ class Box
     private $manyToMany = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     private $visibilityChars = [
         self::VISIBILITY_PRIVATE => '-',
@@ -74,138 +76,170 @@ class Box
 
     /**
      * @param string      $name        Name
-     * @param null|string $description Description
+     * @param string|null $description Description
      */
-    public function __construct($name, $description = null)
+    public function __construct(string $name, ?string $description = null)
     {
         $this->name = $name;
         $this->description = $description;
     }
 
     /**
+     * Add Plain Text
+     *
      * @param string $text Text
      */
-    public function addPlainText($text)
+    public function addPlainText(string $text): void
     {
         $this->plaintext[] = $text;
     }
 
     /**
+     * Add Text
+     *
      * @param string $text Text
      * @param int    $tab  Tab count
      */
-    public function addText($text, $tab = 0)
+    public function addText(string $text, int $tab = 0): void
     {
         $this->text[] = [$text, $tab];
     }
 
     /**
-     * @param string $name       Parameter name
-     * @param string $type       Parameter type
-     * @param int    $visibility Parameter visibility
-     * @param bool   $isRequired Is required
+     * Add Parameter
+     *
+     * @param string $name         Parameter Name
+     * @param string $type         Parameter Type
+     * @param int    $visibility   Parameter Visibility
+     * @param bool   $isRequired   Is Required
+     * @param bool   $isIdentifier Is Identifier
+     * @param bool   $isUnique     Is Unique
      */
-    public function addParameter($name, $type = 'integer', $visibility = self::VISIBILITY_PRIVATE, $isRequired = false)
-    {
-        $this->parameters[] = [$name, $type, $visibility, $isRequired];
+    public function addParameter(
+        string $name,
+        string $type = 'integer',
+        int $visibility = self::VISIBILITY_PRIVATE,
+        bool $isRequired = false,
+        bool $isIdentifier = false,
+        bool $isUnique = false
+    ): void {
+        $this->parameters[] = [$name, $type, $visibility, $isRequired, $isIdentifier, $isUnique];
     }
 
     /**
+     * Add Extends
+     *
      * @param string $extends
      */
-    public function addExtends($extends)
+    public function addExtends(string $extends): void
     {
         $this->extends[] = $extends;
     }
 
     /**
+     * Add One To One
+     *
      * @param string      $class     Class
-     * @param null|string $fieldName Field name
+     * @param string|null $fieldName Field name
      */
-    public function addOneToOne($class, $fieldName = null)
+    public function addOneToOne(string $class, ?string $fieldName = null): void
     {
         $this->oneToOne[] = [$class, $fieldName];
     }
 
     /**
+     * Add Many To One
+     *
      * @param string      $class     Class
-     * @param null|string $fieldName Field name
+     * @param string|null $fieldName Field name
      */
-    public function addManyToOne($class, $fieldName = null)
+    public function addManyToOne(string $class, ?string $fieldName = null): void
     {
         $this->manyToOne[] = [$class, $fieldName];
     }
 
     /**
+     * Add One To Many
+     *
      * @param string      $class     Class
-     * @param null|string $fieldName Field name
+     * @param string|null $fieldName Field name
      */
-    public function addOneToMany($class, $fieldName = null)
+    public function addOneToMany(string $class, ?string $fieldName = null): void
     {
         $this->oneToMany[] = [$class, $fieldName];
     }
 
     /**
+     * Add Many To Many
+     *
      * @param string      $class     Class
-     * @param null|string $fieldName Field name
+     * @param string|null $fieldName Field name
      */
-    public function addManyToMany($class, $fieldName = null)
+    public function addManyToMany(string $class, ?string $fieldName = null): void
     {
         $this->manyToMany[] = [$class, $fieldName];
     }
 
     /**
-     * @return array
+     * To Array
+     *
+     * @return string[]|Generator
      */
-    public function toArray()
+    public function toArray(): Generator
     {
-        $arr = [];
         if ($this->description) {
-            $arr[] = sprintf('class "%s" << %s >>', $this->name, $this->description);
+            yield sprintf('class "%s" << %s >>', $this->name, $this->description);
         } else {
-            $arr[] = sprintf('class "%s"', $this->name);
+            yield sprintf('class "%s"', $this->name);
         }
         foreach ($this->plaintext as $text) {
-            $arr[] = $text;
+            yield $text;
         }
         foreach ($this->text as list($text, $tab)) {
-            $arr[] = sprintf('"%s" : %s%s', $this->name, str_repeat('\t', $tab), $text);
+            yield sprintf('"%s" : %s%s', $this->name, str_repeat('\t', $tab), $text);
         }
-        foreach ($this->parameters as list($name, $type, $visibility, $isRequired)) {
-            $arr[] = sprintf('"%s" : %s%s << %s%s >>', $this->name, $this->visibilityChars[$visibility], $name, $isRequired ? '' : '?', $type);
+        foreach ($this->parameters as list($name, $type, $visibility, $isRequired, $isIdentifier, $isUnique)) {
+            yield sprintf(
+                '"%s" : %s%s « %s%s%s%s »',
+                $this->name,
+                $this->visibilityChars[$visibility],
+                $name,
+                $isRequired ? '' : '?',
+                $type,
+                $isIdentifier ? ' - identifier' : '',
+                $isUnique ? ' - unique' : ''
+            );
         }
         foreach ($this->extends as $extend) {
-            $arr[] = sprintf('"%s" --> "%s"', $this->name, $extend);
+            yield sprintf('"%s" --> "%s"', $this->name, $extend);
         }
         foreach ($this->oneToOne as list($class, $fieldName)) {
             if ($fieldName) {
-                $arr[] = sprintf('"%s" --- "%s" : "%s"', $this->name, $class, $fieldName);
+                yield sprintf('"%s" --- "%s" : "%s"', $this->name, $class, $fieldName);
             } else {
-                $arr[] = sprintf('"%s" --- "%s"', $this->name, $class);
+                yield sprintf('"%s" --- "%s"', $this->name, $class);
             }
         }
         foreach ($this->manyToOne as list($class, $fieldName)) {
             if ($fieldName) {
-                $arr[] = sprintf('"%s" o-- "%s" : "%s"', $this->name, $class, $fieldName);
+                yield sprintf('"%s" o-- "%s" : "%s"', $this->name, $class, $fieldName);
             } else {
-                $arr[] = sprintf('"%s" o-- "%s"', $this->name, $class);
+                yield sprintf('"%s" o-- "%s"', $this->name, $class);
             }
         }
         foreach ($this->oneToMany as list($class, $fieldName)) {
             if ($fieldName) {
-                $arr[] = sprintf('"%s" --o "%s" : "%s"', $this->name, $class, $fieldName);
+                yield sprintf('"%s" --o "%s" : "%s"', $this->name, $class, $fieldName);
             } else {
-                $arr[] = sprintf('"%s" --o "%s"', $this->name, $class);
+                yield sprintf('"%s" --o "%s"', $this->name, $class);
             }
         }
         foreach ($this->manyToMany as list($class, $fieldName)) {
             if ($fieldName) {
-                $arr[] = sprintf('"%s" o-o "%s" : "%s"', $this->name, $class, $fieldName);
+                yield sprintf('"%s" o-o "%s" : "%s"', $this->name, $class, $fieldName);
             } else {
-                $arr[] = sprintf('"%s" o-o "%s"', $this->name, $class);
+                yield sprintf('"%s" o-o "%s"', $this->name, $class);
             }
         }
-
-        return $arr;
     }
 }

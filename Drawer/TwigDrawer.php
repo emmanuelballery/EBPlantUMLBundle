@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Drawer;
 
@@ -32,24 +32,24 @@ class TwigDrawer
     private $plantUML;
 
     /**
-     * @var array
+     * @var string[]
      */
     private $files = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     private $resolvedFiles = [];
 
     /**
-     * @var array
-     */
-    private $excludes = [];
-
-    /**
-     * @var array
+     * @var string[]
      */
     private $includes = [];
+
+    /**
+     * @var string[]
+     */
+    private $excludes = [];
 
     /**
      * @param PlantUML        $plantUML Plant UML
@@ -64,40 +64,42 @@ class TwigDrawer
     }
 
     /**
+     * Draw
+     *
      * @param resource $target   Target
      * @param string   $format   Plant UML format
-     * @param array    $includes Includes files
-     * @param array    $excludes Excluded files
+     * @param string[] $includes Includes Files
+     * @param string[] $excludes Excluded Files
      *
      * @return bool
      */
-    public function draw($target, $format = PlantUML::FORMAT_TXT, array $includes = [], array $excludes = [])
-    {
+    public function draw(
+        $target,
+        string $format = PlantUML::FORMAT_TXT,
+        array $includes = [],
+        array $excludes = []
+    ): bool {
         $this->files = [];
         $this->resolvedFiles = [];
-        $this->excludes = $excludes;
         $this->includes = $includes;
+        $this->excludes = $excludes;
 
-        // List views
-        $path = $this->kernel->getRootDir() . '/Resources/views';
-        if ($this->fs->exists($path)) {
-            /** @var SplFileInfo[] $appFiles */
-            $appFiles = Finder::create()->files()->in($path)->depth('<5');
-            foreach ($appFiles as $file) {
-                $this->load($file);
-            }
-        }
+        // Default directories
+        $this->loadPath($this->kernel->getRootDir() . '/Resources/views');
+        $this->loadPath($this->kernel->getRootDir() . '/templates');
+
+        // Bundle directories
         $bundles = $this->kernel->getBundles();
         foreach ($bundles as $bundle) {
-            $path = $bundle->getPath() . '/Resources/views';
-            if ($this->fs->exists($path)) {
-                /** @var SplFileInfo[] $bundleFiles */
-                $bundleFiles = Finder::create()->files()->in($path)->depth('<5');
-                foreach ($bundleFiles as $file) {
-                    $this->load($file, $bundle);
-                }
-            }
+            $this->loadPath($bundle->getPath() . 'src/Resources/views', $bundle);
+            $this->loadPath($bundle->getPath() . 'src/Resources/templates', $bundle);
+            $this->loadPath($bundle->getPath() . 'src/templates', $bundle);
+            $this->loadPath($bundle->getPath() . '/Resources/views', $bundle);
+            $this->loadPath($bundle->getPath() . '/Resources/templates', $bundle);
+            $this->loadPath($bundle->getPath() . '/templates', $bundle);
         }
+
+        // Resolve all
         array_map([$this, 'resolve'], $this->files);
 
         // Create graph
@@ -154,29 +156,36 @@ class TwigDrawer
     }
 
     /**
-     * Load
+     * Load Path
      *
-     * @param SplFileInfo $file   File
-     * @param null|Bundle $bundle Bundle
+     * @param string      $path   Path
+     * @param Bundle|null $bundle Bundle
      */
-    private function load(SplFileInfo $file, Bundle $bundle = null)
+    private function loadPath(string $path, ?Bundle $bundle = null): void
     {
-        $id = null;
-
-        if (null === $bundle) {
-            if (false !== $appResourcesViewsPath = realpath($this->kernel->getRootDir() . '/Resources/views')) {
-                if (0 === mb_strpos($file->getRealPath(), $appResourcesViewsPath)) {
-                    $id = mb_strcut($file->getRealPath(), 1 + mb_strlen($appResourcesViewsPath));
-                }
-            }
-        } else {
-            if (false !== $bundleResourcesViewsPath = realpath($bundle->getPath() . '/Resources/views')) {
-                if (0 === mb_strpos($file->getRealPath(), $bundleResourcesViewsPath)) {
-                    $id = '@' . mb_strcut($bundle->getName(), 0, -6);
-                    $id .= mb_strcut($file->getRealPath(), mb_strlen($bundleResourcesViewsPath));
-                }
+        if (false !== $path = realpath($path)) {
+            /** @var SplFileInfo[] $files */
+            $files = Finder::create()->files()->in($path)->depth('<5');
+            foreach ($files as $file) {
+                $this->load($path, $file, $bundle);
             }
         }
+    }
+
+    /**
+     * Load
+     *
+     * @param string      $path   Path
+     * @param SplFileInfo $file   File
+     * @param Bundle|null $bundle Bundle
+     */
+    private function load(string $path, SplFileInfo $file, ?Bundle $bundle = null): void
+    {
+        $id = sprintf(
+            '%s%s',
+            $bundle ? sprintf('@%s:', $bundle->getName()) : '',
+            mb_strcut($file->getRealPath(), mb_strlen($path))
+        );
 
         if (null !== $id) {
             $this->files[$id] = [
@@ -195,9 +204,11 @@ class TwigDrawer
     }
 
     /**
+     * Resolve
+     *
      * @param array &$file
      */
-    private function resolve(array &$file)
+    private function resolve(array &$file): void
     {
         if ($this->isAllowed($file['path'])) {
             $this->resolvedFiles[$file['id']] = &$file;
@@ -289,11 +300,13 @@ class TwigDrawer
     }
 
     /**
+     * Is Allowed
+     *
      * @param string $template
      *
      * @return bool
      */
-    private function isAllowed($template)
+    private function isAllowed($template): bool
     {
         foreach ($this->excludes as $exclude) {
             if (true === $this->match($template, $exclude)) {
@@ -310,6 +323,8 @@ class TwigDrawer
     }
 
     /**
+     * Match
+     *
      * @param string $template Template
      * @param string $pattern  Pattern
      *
@@ -321,6 +336,6 @@ class TwigDrawer
             return null;
         }
 
-        return false !== strpos($template, $pattern);
+        return false !== mb_strpos($template, $pattern);
     }
 }

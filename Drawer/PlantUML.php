@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EB\PlantUMLBundle\Drawer;
 
@@ -28,7 +28,7 @@ class PlantUML
     private $fs;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $java;
 
@@ -39,10 +39,10 @@ class PlantUML
 
     /**
      * @param Filesystem           $fs     Filesystem
-     * @param null|string          $java   Java path
-     * @param null|LoggerInterface $logger Logger
+     * @param string|null          $java   Java path
+     * @param LoggerInterface|null $logger Logger
      */
-    public function __construct(Filesystem $fs, $java = null, LoggerInterface $logger = null)
+    public function __construct(Filesystem $fs, ?string $java = null, LoggerInterface $logger = null)
     {
         $this->fs = $fs;
         $this->java = $java;
@@ -50,7 +50,7 @@ class PlantUML
     }
 
     /**
-     * Dump array data
+     * Dump Array Data
      *
      * @param Graph    $graph  Graph
      * @param resource $file   File
@@ -58,12 +58,10 @@ class PlantUML
      *
      * @return bool
      */
-    public function dump(Graph $graph, $file, $format = PlantUML::FORMAT_TXT)
+    public function dump(Graph $graph, $file, string $format = PlantUML::FORMAT_TXT): bool
     {
-        $format = $format ?: self::FORMAT_TXT;
-
         try {
-            $content = implode(PHP_EOL, $graph->toArray()) . PHP_EOL;
+            $content = implode(PHP_EOL, iterator_to_array($graph->toArray(), false)) . PHP_EOL;
 
             if (self::FORMAT_UML === $format) {
                 $url = sprintf('http://www.plantuml.com/plantuml/uml/%s', $this->urlEncode($content));
@@ -107,20 +105,14 @@ class PlantUML
 
                 if (self::FORMAT_SVG === $format) {
                     $args[] = '-tsvg';
-                }
-
-                if (self::FORMAT_ATXT === $format) {
+                } elseif (self::FORMAT_ATXT === $format) {
                     $args[] = '-txt';
-                }
-
-                if (self::FORMAT_UTXT === $format) {
+                } elseif (self::FORMAT_UTXT === $format) {
                     $args[] = '-utxt';
                 }
 
                 $plantUml = new Process($args);
-
                 $plantUml->run();
-
                 if ($plantUml->isSuccessful()) {
                     if (false !== $png = fopen($pngPath, 'r')) {
                         if (0 !== stream_copy_to_stream($png, $file)) {
@@ -140,30 +132,31 @@ class PlantUML
 
             return false;
         } catch (\Exception $e) {
-            return false;
         }
+
+        return false;
     }
 
     /**
-     * Url encode
+     * Url Encode
      *
      * @param string $text
      *
      * @return string
      */
-    private function urlEncode($text)
+    private function urlEncode(string $text): string
     {
         return $this->urlEncode64(gzdeflate(utf8_encode($text), 9));
     }
 
     /**
-     * Url encode64
+     * Url Encode64
      *
      * @param string $c
      *
      * @return string
      */
-    private function urlEncode64($c)
+    private function urlEncode64(string $c): string
     {
         $str = '';
         $len = strlen($c);
@@ -195,15 +188,15 @@ class PlantUML
     }
 
     /**
-     * Url append 3bytes
+     * Url Append 3bytes
      *
-     * @param int $b1
-     * @param int $b2
-     * @param int $b3
+     * @param int $b1 B1
+     * @param int $b2 B2
+     * @param int $b3 B3
      *
      * @return string
      */
-    private function urlAppend3bytes($b1, $b2, $b3)
+    private function urlAppend3bytes(int $b1, int $b2, int $b3): string
     {
         $c1 = $b1 >> 2;
         $c2 = (($b1 & 0x3) << 4) | ($b2 >> 4);
@@ -219,13 +212,13 @@ class PlantUML
     }
 
     /**
-     * Url encode 6bit
+     * Url Encode 6bit
      *
      * @param int $b
      *
      * @return string
      */
-    private function urlEncode6bit($b)
+    private function urlEncode6bit(int $b): string
     {
         if ($b < 10) {
             return chr(48 + $b);
